@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:quizTime/result.dart';
 
-import './question.dart';
-import './answer.dart';
+import './quiz.dart';
+import './result.dart';
 
 void main() => runApp(QuizTime());
 
@@ -14,8 +15,37 @@ class QuizTime extends StatefulWidget {
 
 class _QuizTimeState extends State<QuizTime> {
   var _questionIndex = 0;
+  var _totalScore = 0;
+  final _questions = const [
+    {
+      'questionText': 'What\'s your favourite color?',
+      'answers': [
+        {'code': 'Black', 'score': 10},
+        {'code': 'Red', 'score': 7},
+        {'code': 'Green', 'score': 4},
+        {'code': 'White', 'score': 1},
+      ],
+    },
+    {
+      'questionText': 'What\'s your favourite color?',
+      'answers': [
+        {'code': 'Rabbit', 'score': 3},
+        {'code': 'Snake', 'score': 11},
+        {'code': 'Elephant', 'score': 5},
+        {'code': 'Lion', 'score': 9},
+      ],
+    },
+  ];
 
-  void _answerQuestion() {
+  void _resetQuiz() {
+    setState(() {
+      _questionIndex = 0;
+      _totalScore = 0;
+    });
+  }
+
+  void _answerQuestion(int score) {
+    _totalScore += score;
     setState(() {
       _questionIndex = (_questionIndex + 1) % 3;
     });
@@ -23,36 +53,18 @@ class _QuizTimeState extends State<QuizTime> {
 
   @override
   Widget build(BuildContext context) {
-    const questions = const [
-      {
-        'questionText': 'What\'s your favourite color?',
-        'answers': ['Black', 'Red', 'Green', 'White'],
-      },
-      {
-        'questionText': 'What\'s your favourite color?',
-        'answers': ['Rabbit', 'Snake', 'Elephant', 'Lion'],
-      },
-      {
-        'questionText': 'What\'s your favourite number?',
-        'answers': ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
-      },
-    ];
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
           title: Text('Quiz Time'),
         ),
-        body: Column(
-          children: [
-            Question(
-              questions[_questionIndex]['questionText'],
-            ),
-            ...(questions[_questionIndex]['answers'] as List<String>)
-                .map((answer) {
-              return Answer(_answerQuestion, answer);
-            }).toList()
-          ],
-        ),
+        body: _questionIndex < _questions.length
+            ? Quiz(
+                questions: _questions,
+                questionIndex: _questionIndex,
+                answerQuestion: _answerQuestion,
+              )
+            : Result(_totalScore, _resetQuiz),
       ),
     );
   }
